@@ -1,6 +1,6 @@
 # Car Price Prediction
 
-A simple machine learning project that predicts car prices based on brand, year, and kilometers.
+A simple machine learning project that predicts car prices in Canadian dollars (CAD) based on brand, year, and kilometers.
 
 ## Project Overview
 

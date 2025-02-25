@@ -38,7 +38,7 @@ for _ in range(n_samples):
     kilometers = int(age * avg_annual_kilometers * (0.7 + 0.6 * np.random.random()))
     kilometers_factor = np.exp(-0.05 * (kilometers / 16000))  # Higher kilometers reduces price
     
-    # Base price for a new car of the cheapest brand
+    # Base price for a new car of the cheapest brand (in CAD)
     base_price = 25000
     
     # Calculate price with some randomness
@@ -62,7 +62,7 @@ df = pd.DataFrame(data)
 df.to_csv("data/car_prices.csv", index=False)
 
 print(f"Dataset with {n_samples} samples saved to data/car_prices.csv")
-print("\nData preview:")
+print("\nData preview (prices in CAD):")
 print(df.head())
 
 # Show correlations (excluding Brand which is categorical)

@@ -62,8 +62,8 @@ for name, model in models.items():
     r2 = r2_score(y_test, y_pred)
     
     print(f"Model Evaluation for {name}:")
-    print(f"Mean Squared Error: ${mse:.2f}")
-    print(f"Root Mean Squared Error: ${rmse:.2f}")
+    print(f"Mean Squared Error: CA${mse:.2f}")
+    print(f"Root Mean Squared Error: CA${rmse:.2f}")
     print(f"R² Score: {r2:.4f}")
     
     # For Random Forest, show feature importance
@@ -101,7 +101,7 @@ sample_car_scaled = scaler.transform(sample_car)
 predicted_price = best_model.predict(sample_car_scaled)[0]
 
 print(f"\nSample Prediction:")
-print(f"Predicted price for a 2019 Toyota with 50,000 kilometers: ${predicted_price:.2f}")
+print(f"Predicted price for a 2019 Toyota with 50,000 kilometers: CA${predicted_price:.2f}")
 
 # Save the best model
 import joblib

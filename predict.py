@@ -78,7 +78,7 @@ def main():
     predicted_price = predict_price(brand, year, kilometers)
     
     if predicted_price is not None:
-        print(f"\nPredicted Price: ${predicted_price:.2f}")
+        print(f"\nPredicted Price: CA${predicted_price:.2f}")
     
     # Ask if user wants to make another prediction
     another = input("\nWould you like to predict another car price? (y/n): ")
