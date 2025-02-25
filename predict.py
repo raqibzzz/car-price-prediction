@@ -15,7 +15,7 @@ def predict_price(brand, year, kilometers):
     model, scaler, label_encoder = load_models()
     
     # Current year for age calculation
-    current_year = 2023
+    current_year = 2025
     
     try:
         # Transform brand to numerical value
