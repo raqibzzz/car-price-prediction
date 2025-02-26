@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import Head from 'next/head';
-import axios from 'axios';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const [brand, setBrand] = useState('');
@@ -10,141 +14,119 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const carBrands = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW', 'Mercedes', 'Lexus', 'Audi'];
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 30 }, (_, i) => currentYear - i);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setPrediction(null);
     setError('');
+    setPrediction(null);
 
     try {
-      const response = await axios.post('/api/predict', {
-        brand,
-        year: parseInt(year),
-        kilometers: parseInt(kilometers)
+      const res = await fetch('/api/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ brand, year, kilometers }),
       });
-      
-      setPrediction(response.data.prediction);
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setPrediction(data.prediction);
+      } else {
+        setError(data.error || 'Something went wrong');
+      }
     } catch (err) {
-      setError('Error getting prediction. Please try again.');
-      console.error('Prediction error:', err);
+      setError('Failed to connect to the server');
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
       <Head>
         <title>Car Price Prediction</title>
-        <meta name="description" content="Predict car prices using AI" />
+        <meta name="description" content="Predict the price of your car based on its brand, year, and kilometers" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold text-center text-blue-700 mb-10">
-            Car Price Prediction
-          </h1>
-          
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="brand" className="block text-sm font-medium text-gray-700">
-                  Car Brand
-                </label>
-                <select
-                  id="brand"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  required
-                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                >
-                  <option value="">Select a brand</option>
-                  {carBrands.map((carBrand) => (
-                    <option key={carBrand} value={carBrand}>
-                      {carBrand}
-                    </option>
-                  ))}
-                </select>
+      <main className="w-full max-w-md">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-center">Car Price Prediction</CardTitle>
+            <CardDescription className="text-center">
+              Enter your car details to get an estimated price
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="brand">Car Brand</Label>
+                <Select value={brand} onValueChange={setBrand} required>
+                  <SelectTrigger id="brand">
+                    <SelectValue placeholder="Select a brand" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Toyota">Toyota</SelectItem>
+                    <SelectItem value="Honda">Honda</SelectItem>
+                    <SelectItem value="Ford">Ford</SelectItem>
+                    <SelectItem value="BMW">BMW</SelectItem>
+                    <SelectItem value="Mercedes">Mercedes</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div>
-                <label htmlFor="year" className="block text-sm font-medium text-gray-700">
-                  Year
-                </label>
-                <select
+              <div className="space-y-2">
+                <Label htmlFor="year">Year</Label>
+                <Input
                   id="year"
+                  type="number"
+                  min="1990"
+                  max="2023"
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
+                  placeholder="Enter year (1990-2023)"
                   required
-                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                >
-                  <option value="">Select year</option>
-                  {years.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="kilometers" className="block text-sm font-medium text-gray-700">
-                  Kilometers
-                </label>
-                <input
-                  type="number"
-                  id="kilometers"
-                  value={kilometers}
-                  onChange={(e) => setKilometers(e.target.value)}
-                  min="0"
-                  required
-                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                  placeholder="e.g. 50000"
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
+              <div className="space-y-2">
+                <Label htmlFor="kilometers">Kilometers</Label>
+                <Input
+                  id="kilometers"
+                  type="number"
+                  min="0"
+                  value={kilometers}
+                  onChange={(e) => setKilometers(e.target.value)}
+                  placeholder="Enter kilometers driven"
+                  required
+                />
+              </div>
+
+              <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Calculating...' : 'Predict Price'}
-              </button>
+              </Button>
             </form>
 
             {error && (
-              <div className="mt-6 text-red-600 text-center font-medium">
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-600">
                 {error}
               </div>
             )}
 
             {prediction && (
-              <div className="mt-8">
-                <h2 className="text-lg font-medium text-gray-900">Price Prediction</h2>
-                <div className="mt-4 p-4 bg-blue-50 rounded-md">
-                  <p className="text-center">
-                    <span className="text-lg font-medium">Estimated Price: </span>
-                    <span className="text-2xl font-bold text-blue-700">
-                      CA${prediction.toFixed(2)}
-                    </span>
-                  </p>
-                </div>
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-center font-medium">Estimated Price</p>
+                <p className="text-center text-2xl font-bold text-green-700">
+                  ${parseInt(prediction).toLocaleString()}
+                </p>
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </main>
-
-      <footer className="bg-white mt-10 py-6">
-        <div className="max-w-3xl mx-auto text-center text-gray-500">
-          <p>Car Price Prediction App | Built with Next.js</p>
-        </div>
-      </footer>
     </div>
   );
 } 
