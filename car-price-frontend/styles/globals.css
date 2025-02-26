@@ -63,6 +63,11 @@
   @apply bg-gray-50;
 } */
 
+/* Dark mode enhancements - ensure dark mode styles are applied */
+.dark body {
+  @apply bg-background text-foreground;
+}
+
 /* Enhanced dropdown visibility */
 [data-radix-popper-content-wrapper] {
   z-index: 9999 !important;
