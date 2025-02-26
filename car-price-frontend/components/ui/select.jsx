@@ -2,6 +2,13 @@ import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown } from "lucide-react"
 import { cn } from "../../lib/utils"
+import dynamic from "next/dynamic"
+
+// Dynamically import PortalWrapper with no SSR
+const PortalWrapper = dynamic(
+  () => import('../../lib/portal-wrapper').then(mod => mod.PortalWrapper),
+  { ssr: false }
+)
 
 const Select = SelectPrimitive.Root
 
@@ -26,30 +33,47 @@ const SelectTrigger = React.forwardRef(({ className, children, ...props }, ref) 
 ))
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 
-const SelectContent = React.forwardRef(({ className, children, position = "popper", ...props }, ref) => (
-  <SelectPrimitive.Portal>
-    <SelectPrimitive.Content
-      ref={ref}
-      className={cn(
-        "relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-80",
-        position === "popper" && "translate-y-1",
-        className
-      )}
-      position={position}
-      {...props}
-    >
-      <SelectPrimitive.Viewport
+// Use our custom portal with client-side only rendering
+const SelectContent = React.forwardRef(({ className, children, position = "popper", ...props }, ref) => {
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <PortalWrapper>
+      <SelectPrimitive.Content
+        ref={ref}
         className={cn(
-          "p-1",
-          position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          "relative min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+          position === "popper" && "translate-y-1",
+          className
         )}
+        position={position}
+        sideOffset={5}
+        style={{ zIndex: 9999 }}
+        avoidCollisions={true}
+        collisionPadding={20}
+        {...props}
       >
-        {children}
-      </SelectPrimitive.Viewport>
-    </SelectPrimitive.Content>
-  </SelectPrimitive.Portal>
-))
+        <SelectPrimitive.Viewport
+          className={cn(
+            "p-1",
+            position === "popper" &&
+              "h-auto max-h-72 w-full min-w-[var(--radix-select-trigger-width)]"
+          )}
+        >
+          {children}
+        </SelectPrimitive.Viewport>
+      </SelectPrimitive.Content>
+    </PortalWrapper>
+  )
+})
 SelectContent.displayName = SelectPrimitive.Content.displayName
 
 const SelectLabel = React.forwardRef(({ className, ...props }, ref) => (
@@ -65,7 +89,7 @@ const SelectItem = React.forwardRef(({ className, children, ...props }, ref) => 
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent hover:text-accent-foreground",
       className
     )}
     {...props}
